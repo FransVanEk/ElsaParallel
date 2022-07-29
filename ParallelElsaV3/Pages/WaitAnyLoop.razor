@@ -1,0 +1,37 @@
+﻿@page "/waitanyloop"
+<h3>Wait Any</h3>
+
+<EngineRunner processDefinition=@processDefinition></EngineRunner>
+
+@code {
+
+     ProcessDefinition processDefinition = new ProcessDefinition();
+
+
+    protected override void OnInitialized()
+    {
+        processDefinition
+                .AddNode(new Start("Begin"))
+                .AddNode(new Activity("Do something"))
+                .AddNode(new Fork("Fork on"))
+                .AddNode(new Activity("Do something 1"))
+                .AddNode(new Activity("Do something else 2a"))
+                .AddNode(new Activity("Do something else 2b"))
+                .AddNode(new Activity("Do something else 2c"))
+                .AddNode(new Join("Join", eJoinExecutionType.WaitForAny))
+                .AddNode(new Activity("Final"))
+
+                  .AddConnection("Begin", "Do something")
+                  .AddConnection("Do something", "Fork on")
+                  .AddConnection("Fork on", "Do something 1")
+                  .AddConnection("Do something 1", "Join")
+                  .AddConnection("Fork on", "Do something else 2a")
+                  .AddConnection("Do something else 2a", "Do something else 2b")
+                  .AddConnection("Do something else 2b", "Do something else 2c")
+                  .AddConnection("Do something else 2c", "Join")
+                  .AddConnection("Join", "Final")
+                  .AddConnection("Final", "Do something");
+
+    }
+}
+

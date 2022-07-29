@@ -1,0 +1,164 @@
+﻿@using MermaidJS.Blazor
+
+<PageTitle>Sample 1</PageTitle>
+
+<div class="container">
+    <div class="row">
+        <RadzenSplitButton Click=@(args => OnClick(args, "SplitButton with text")) Text="Next">
+            <ChildContent>
+                <RadzenSplitButtonItem Text="Reset" Value="1" />
+            </ChildContent>
+        </RadzenSplitButton>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <RadzenCard class="m-3">
+                <h3 class="h5">process</h3>
+                <div class="d-flex flex-row">
+                    <MermaidDiagram Definition="@diagramDefinition" />
+                </div>
+            </RadzenCard>
+        </div>
+        <div class="col">
+            <RadzenCard class="m-3">
+                <h3 class="h5">Next in line</h3>
+                <div class="col">
+                    <div class="d-flex flex-row">
+                        <b>
+                            @NextInLine?.Node.Text
+                        </b>
+                    </div>
+                    <div class="d-flex flex-row">
+                        Activated from:
+                    </div>
+                    <div class="d-flex flex-row">
+                        <b>@ActivatedFrom</b>
+                    </div>
+                    <div class="d-flex flex-row">
+                        <RadzenDataList WrapItems="false" AllowPaging="true" Data="@Counters" TItem="CounterItem" PageSize="15" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false">
+                            <Template Context="CounterItem">
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="m-4">
+                                            @CounterItem.Node.Text
+                                        </div>
+                                        <div class="m-4">
+                                            @CounterItem.Counter &nbsp; @if (CounterItem.Node.Text == @ActivatedFrom)
+                                            {
+                                                <b>+ 1</b>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </Template>
+                        </RadzenDataList>
+                    </div>
+                </div>
+            </RadzenCard>
+        </div>
+        <div class="col">
+            <RadzenCard class="m-3">
+                <h3 class="h5">Activities to execute</h3>
+                <div class="d-flex flex-row">
+                    <ul>
+                        @foreach (var item in engine.NodesToExecute)
+                        {
+                            <li>@item.Node.Text</li>
+                        }
+                    </ul>
+                </div>
+                <div class="d-flex flex-row">
+                    <b>Exectuion Log</b>
+                </div>
+                <div class="d-flex flex-row">
+                    <ul>
+                        @foreach (var item in Log)
+                        {
+                            <li>@item</li>
+                        }
+                    </ul>
+                </div>
+            </RadzenCard>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <RadzenCard class="m-3">
+                <h3 class="h5">mermaid</h3>
+                <div class="d-flex flex-row">
+                    @((MarkupString)diagramDefinition.Replace(Environment.NewLine,"<br />"))
+                </div>
+            </RadzenCard>
+        </div>
+    </div>
+</div>
+
+@processDefinition.Nodes.Count
+
+@code {
+
+    [Parameter]
+    public ProcessDefinition processDefinition { get; set; }
+
+
+    private string diagramDefinition = "";
+    private ExecutionEngine engine = null;
+    private List<CounterItem> Counters = new List<CounterItem>();
+    private ExecutionItem NextInLine = null;
+    private string ActivatedFrom = "";
+    private List<string> Log = new List<string>();
+
+
+    protected override void OnInitialized()
+    {
+        InitEngine();
+    }
+
+    private void InitEngine()
+    {
+        engine = new ExecutionEngine(processDefinition);
+        UpdateStatus();
+    }
+
+    void OnClick(RadzenSplitButtonItem item, string buttonName)
+    {
+        if (item != null)
+        {
+            InitEngine();
+        }
+        else
+        {
+            //next
+            engine.PerformStep();
+            UpdateStatus();
+        }
+    }
+    void UpdateStatus()
+    {
+        diagramDefinition = engine.ToMermaidGraph("TB");
+        NextInLine = engine.NodesToExecute.FirstOrDefault();
+        if (NextInLine == null || NextInLine.ActivationToken == null || NextInLine.ActivationToken.PreviousNode == null)
+        {
+            Counters = new List<CounterItem>();
+            ActivatedFrom = "";
+            return;
+        }
+        Log.Add(NextInLine.Node.Text);
+        ActivatedFrom = NextInLine.ActivationToken.PreviousNode.Text;
+
+        Counters = new List<CounterItem>();
+
+        if (NextInLine.Node is Join joinNode)
+        {
+
+            Counters = joinNode.Counters;
+        }
+    }
+
+}
+
+

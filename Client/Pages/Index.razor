@@ -1,0 +1,52 @@
+﻿@page "/"
+@using MermaidJS.Blazor
+
+
+<PageTitle>Sample 1</PageTitle>
+
+@*
+
+
+<h1>Simple</h1>
+
+<RadzenSplitButton Click=@(args => OnClick(args, "SplitButton with text")) Text="Next">
+    <ChildContent>
+        <RadzenSplitButtonItem Text="Reset" Value="1" />
+    </ChildContent>
+</RadzenSplitButton>
+<div class="row my-12">
+    <div class="col-lg-6 col-xl-4 offset-lg-3 offset-xl-4">
+        <RadzenCard class="m-3">
+            <h3 class="h5">process</h3>
+            <div class="d-flex flex-row">
+                <MermaidDiagram Definition="@diagramDefinition" />
+            </div>
+        </RadzenCard>
+    </div>
+</div>
+
+
+@code {
+    string diagramDefinition = "";
+    ExecutionEngine engine = null;
+
+
+    protected override void OnInitialized()
+    {
+    //    engine = new ExecutionEngine(new ProcessDefinition().Nodes.Add(new Activity("test"));
+    }
+
+    void OnClick(RadzenSplitButtonItem item, string buttonName)
+    {
+        if (item != null)
+        {
+            //reset
+        }
+        else
+        {
+            //next          
+            diagramDefinition = $"graph TB\nA-->B\nB-->C\nC-->D1";
+        }
+    }
+
+}*@
