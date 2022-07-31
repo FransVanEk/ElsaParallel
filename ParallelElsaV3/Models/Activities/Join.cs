@@ -1,9 +1,11 @@
-﻿using ParallelElsaV3.Models;
+﻿using ParallelElsaV3.Interfaces;
+using ParallelElsaV3.Models;
 
 namespace ParallelElsaV3.Models.Activities
 {
-    public class Join : Node
+    public class Join : Node, IJoin
     {
+        public List<CounterItem> Counters { get; set; } = new List<CounterItem>();
 
         public Join(string text, eJoinExecutionType executionType) : base(text)
         {
@@ -45,6 +47,11 @@ namespace ParallelElsaV3.Models.Activities
             return ScheduleNoNewActivities(activationToken);
         }
 
+        public void ResetCounters()
+        {
+            Counters = new List<CounterItem>();
+        }
+
         private bool CheckIfAllHaveCount(int count)
         {
             return Counters.All(counter => counter.Counter >= count);
@@ -80,7 +87,7 @@ namespace ParallelElsaV3.Models.Activities
             });
         }
 
-        public List<CounterItem> Counters { get; set; } = new List<CounterItem>();
+        
     }
 
     public class CounterItem
@@ -97,6 +104,7 @@ namespace ParallelElsaV3
     {
         ContinueAlways,
         WaitForAny,
-        WaitForAll
+        WaitForAll,
+        CustomJoin
     }
 }

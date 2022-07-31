@@ -33,6 +33,12 @@ namespace ParallelElsaV3.Engine
             }
         }
 
+        public void Reset()
+        {
+            ProcessDefinition.Reset();
+            NodesToExecute = new ExecutionItems();
+        }
+
         public ExecutionItems NodesToExecute = new ExecutionItems();
 
     }

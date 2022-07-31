@@ -1,4 +1,5 @@
-﻿using ParallelElsaV3.Models;
+﻿using ParallelElsaV3.Interfaces;
+using ParallelElsaV3.Models;
 
 namespace ParallelElsaV3.Engine
 {
@@ -10,10 +11,10 @@ namespace ParallelElsaV3.Engine
             Nodes.Add(node);
             return this;
         }
-        
+
         public Nodes Nodes { get; set; } = new Nodes();
 
-        public ProcessDefinition AddConnection(INode from, INode  to)
+        public ProcessDefinition AddConnection(INode from, INode to)
         {
             Connections.Add(new Connection(from, to));
             return this;
@@ -26,5 +27,9 @@ namespace ParallelElsaV3.Engine
 
         public Connections Connections { get; set; } = new Connections();
 
+        internal void Reset()
+        {
+            Nodes.Where(n => n is IJoin).ToList().ForEach(n => ((IJoin)n).ResetCounters());
+        }
     }
 }

@@ -120,8 +120,17 @@
 
     private void InitEngine()
     {
-        engine = new ExecutionEngine(processDefinition);
+        if (engine == null)
+        {
+            engine = new ExecutionEngine(processDefinition);
+        }
+        else
+        {
+            engine.Reset();
+        }
+        Log.Clear();
         UpdateStatus();
+
     }
 
     void OnClick(RadzenSplitButtonItem item, string buttonName)
@@ -154,7 +163,6 @@
 
         if (NextInLine.Node is Join joinNode)
         {
-
             Counters = joinNode.Counters;
         }
     }
