@@ -29,7 +29,7 @@ namespace ParallelElsaV3.Engine
 
         internal void Reset()
         {
-            Nodes.Where(n => n is IJoin).ToList().ForEach(n => ((IJoin)n).ResetCounters());
+            Nodes.Where(n => n is IJoin).ToList().ForEach(n => ((IJoin)n).ResetCounters(Connections));
         }
     }
 }

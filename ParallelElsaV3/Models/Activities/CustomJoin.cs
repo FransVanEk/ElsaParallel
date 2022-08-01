@@ -10,12 +10,11 @@ namespace ParallelElsaV3.Models.Activities
 
         public List<CounterItem> Counters { get; set; } = new List<CounterItem>();
 
-        public void ResetCounters()
+        public void ResetCounters(Connections connections)
         {
-            
+            AddCounterForConnectingActivities(connections);
         }
-
-        
+               
 
         public eJoinExecutionType JoinExecutionType { get; private set; }
 
@@ -32,20 +31,20 @@ namespace ParallelElsaV3.Models.Activities
 
         private ExecutionResult GetExectutionResult(int count, Connections connections, ActivationToken activationToken)
         {
-            if(Counters.All(i => i.Counter > 3)) {
+            if(Counters.Where(c => c.Node.Text.StartsWith("Do")).All(i => i.Counter >= 1)) {
                 return ScheduleNextActivities(connections, activationToken);
             }
-            return ScheduleNoNewActivities(connections, activationToken);
+            return ScheduleNoNewActivities( activationToken);
         }
 
-        private ExecutionResult ScheduleNoNewActivities(Connections connections, ActivationToken activationToken)
+        private ExecutionResult ScheduleNoNewActivities(ActivationToken activationToken)
         {
-            return new ExecutionResult(connections.GetOutboundConnectedNodes(this).Skip(1).ToNodes(), activationToken);
+            return new ExecutionResult(new Nodes(), activationToken);
         }
 
         private ExecutionResult ScheduleNextActivities(Connections connections, ActivationToken activationToken)
         {
-            return new ExecutionResult(connections.GetOutboundConnectedNodes(this).Take(1).ToNodes(), activationToken);
+            return new ExecutionResult(connections.GetOutboundConnectedNodes(this), activationToken, true);
         }
 
 

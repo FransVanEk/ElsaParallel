@@ -1,4 +1,5 @@
-﻿using ParallelElsaV3.Models;
+﻿using ParallelElsaV3.Interfaces;
+using ParallelElsaV3.Models;
 using ParallelElsaV3.Models.Activities;
 
 namespace ParallelElsaV3.Engine
@@ -8,11 +9,18 @@ namespace ParallelElsaV3.Engine
         public ExecutionEngine(ProcessDefinition processDefinition)
         {
             ProcessDefinition = processDefinition;
-            FindStartNodes();
+            ScheduleStartNodes();
+            SetCounters();
         }
 
-        private void FindStartNodes()
+        private void SetCounters()
         {
+            ProcessDefinition.Nodes.Where(n => n is IJoin).ToList().ForEach(n => ((IJoin)n).ResetCounters(ProcessDefinition.Connections));
+        }
+
+        public void ScheduleStartNodes()
+        {
+
             ProcessDefinition
                 .Nodes
                 .Where(n => n is Start)
@@ -28,8 +36,10 @@ namespace ParallelElsaV3.Engine
             if (NodesToExecute.Count > 0)
             {
                 var itemToExecute = NodesToExecute.First();
-                NodesToExecute.AddRange(itemToExecute.Node.Execute(ProcessDefinition.Connections, itemToExecute.ActivationToken).ToExecutionItems());
+                var result = itemToExecute.Node.Execute(ProcessDefinition.Connections, itemToExecute.ActivationToken);
                 NodesToExecute.RemoveAt(0);
+                if (result.ClearAllScheduledNodes) { NodesToExecute.Clear(); }
+                NodesToExecute.AddRange(result.ToExecutionItems());
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿@using MermaidJS.Blazor
+@using ParallelElsaV3.Interfaces
 
 <PageTitle>Sample 1</PageTitle>
 
@@ -70,7 +71,7 @@
                     </ul>
                 </div>
                 <div class="d-flex flex-row">
-                    <b>Exectuion Log</b>
+                    <b>Execution Log</b>
                 </div>
                 <div class="d-flex flex-row">
                     <ul>
@@ -127,6 +128,7 @@
         else
         {
             engine.Reset();
+            engine.ScheduleStartNodes();
         }
         Log.Clear();
         UpdateStatus();
@@ -161,7 +163,7 @@
 
         Counters = new List<CounterItem>();
 
-        if (NextInLine.Node is Join joinNode)
+        if (NextInLine.Node is IJoin joinNode)
         {
             Counters = joinNode.Counters;
         }

@@ -8,12 +8,21 @@ namespace ParallelElsaV3.Models
         {
             Nodes = nodes;
             ActivationToken = activationToken;
+            ClearAllScheduledNodes = false; 
+        }
+
+        public ExecutionResult(Nodes nodes, ActivationToken activationToken, bool  clearAllScheduledNodes)
+        {
+            Nodes = nodes;
+            ActivationToken = activationToken;
+            ClearAllScheduledNodes = clearAllScheduledNodes;
         }
 
 
         public Nodes Nodes { get; set; }
 
         public ActivationToken ActivationToken { get; set; }
+        public bool ClearAllScheduledNodes { get; set; } = false;
     }
 
     public static class ExecutionResultExtensions

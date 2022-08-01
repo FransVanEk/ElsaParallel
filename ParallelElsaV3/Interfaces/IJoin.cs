@@ -1,7 +1,12 @@
-﻿namespace ParallelElsaV3.Interfaces
+﻿using ParallelElsaV3.Models;
+using ParallelElsaV3.Models.Activities;
+
+namespace ParallelElsaV3.Interfaces
 {
     public interface IJoin
     {
-        void ResetCounters();
+        List<CounterItem> Counters { get; set; }
+
+        void ResetCounters(Connections conntections);
     }
 }

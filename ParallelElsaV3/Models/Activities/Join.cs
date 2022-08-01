@@ -47,9 +47,9 @@ namespace ParallelElsaV3.Models.Activities
             return ScheduleNoNewActivities(activationToken);
         }
 
-        public void ResetCounters()
+        public void ResetCounters(Connections connections)
         {
-            Counters = new List<CounterItem>();
+            AddCounterForConnectingActivities(connections);
         }
 
         private bool CheckIfAllHaveCount(int count)
