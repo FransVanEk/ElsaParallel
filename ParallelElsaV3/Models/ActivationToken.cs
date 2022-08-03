@@ -3,7 +3,7 @@
     public class ActivationToken 
     {
         public Node? PreviousNode { get; set; }
-        public Dictionary<string, object> CustomProperties { get; set; } = new Dictionary<string, object>();
+        public  CustomProperties CustomProperties { get; set; } = new CustomProperties();
 
         public ActivationToken Clone()
         {

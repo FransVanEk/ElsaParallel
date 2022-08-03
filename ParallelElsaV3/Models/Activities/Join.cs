@@ -1,26 +1,19 @@
 ﻿using ParallelElsaV3.Interfaces;
 using ParallelElsaV3.Models;
+using ParallelElsaV3.Models.Activities;
 
 namespace ParallelElsaV3.Models.Activities
 {
-    public class Join : Node, IJoin
+    public class Join : JoinBase
     {
-        public List<CounterItem> Counters { get; set; } = new List<CounterItem>();
+        private ItemCounters counters = new ItemCounters();
 
-        public Join(string text, eJoinExecutionType executionType) : base(text)
+        public Join(string text, eJoinExecutionType executionType) : base(text, executionType)
         {
-            JoinExecutionType = executionType;
+           
         }
-
-        public eJoinExecutionType JoinExecutionType { get; private set; }
-
         public override ExecutionResult Execute(Connections connections, ActivationToken activationToken)
         {
-            if (Counters.Count == 0)
-            {
-                AddCounterForConnectingActivities(connections);
-            }
-
             var count = IncreaseCounterFor(activationToken.PreviousNode);
             return GetExectutionResult(count, connections, activationToken);
         }
@@ -47,19 +40,16 @@ namespace ParallelElsaV3.Models.Activities
             return ScheduleNoNewActivities(activationToken);
         }
 
-        public void ResetCounters(Connections connections)
-        {
-            AddCounterForConnectingActivities(connections);
-        }
+       
 
         private bool CheckIfAllHaveCount(int count)
         {
-            return Counters.All(counter => counter.Counter >= count);
+            return counters.All(counter => counter.Counter >= count);
         }
 
         private bool CheckHighestNumber(int count)
         {
-            return Counters.Count(n => n.Counter == count) ==1 && Counters.Max(n=> n.Counter == count);
+            return counters.Count(n => n.Counter == count) ==1 && counters.Max(n=> n.Counter == count);
         }
 
         private ExecutionResult ScheduleNoNewActivities(ActivationToken activationToken)
@@ -74,23 +64,30 @@ namespace ParallelElsaV3.Models.Activities
 
         private int IncreaseCounterFor(Node? previousNode)
         {
-            var counter = Counters.First(i => i.Node == previousNode);
+            var counter = counters.First(i => i.Node == previousNode);
             counter.Counter++;
             return counter.Counter;
         }
 
-        private void AddCounterForConnectingActivities(Connections connections)
+        internal override void AddCounterForConnectingActivities( Connections connections)
         {
             connections.GetInboundConnectedNodes(this).ForEach(n =>
             {
-                Counters.Add(new CounterItem { Node = n, Counter = 0 });
+                counters.Add(new ItemCounter { Node = n, Counter = 0 });
             });
         }
 
-        
+        public override ItemCounters GetCounters()
+        {
+            return counters;
+        }
     }
 
-    public class CounterItem
+    public class ItemCounters : List<ItemCounter>
+    { }
+
+
+    public class ItemCounter
     {
         public INode Node { get; set; }
 
@@ -106,5 +103,26 @@ namespace ParallelElsaV3
         WaitForAny,
         WaitForAll,
         CustomJoin
+    }
+
+    public abstract class JoinBase: Node, IJoin
+    {
+        public eJoinExecutionType JoinExecutionType { get; private set; }
+
+        protected JoinBase(string text, eJoinExecutionType joinExecutionType) : base(text)
+        {
+            JoinExecutionType = joinExecutionType;
+        }
+
+        public abstract override ExecutionResult Execute(Connections connections, ActivationToken activationToken);
+
+        public void ResetCounters(Connections connections)
+        {
+            AddCounterForConnectingActivities(connections);
+        }
+
+        internal abstract void AddCounterForConnectingActivities(Connections connections);
+
+        public abstract ItemCounters GetCounters();
     }
 }

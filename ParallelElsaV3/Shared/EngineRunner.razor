@@ -38,7 +38,7 @@
                         <b>@ActivatedFrom</b>
                     </div>
                     <div class="d-flex flex-row">
-                        <RadzenDataList WrapItems="false" AllowPaging="true" Data="@Counters" TItem="CounterItem" PageSize="15" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false">
+                        <RadzenDataList WrapItems="false" AllowPaging="true" Data="@Counters" TItem="ItemCounter" PageSize="15" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false">
                             <Template Context="CounterItem">
                                 <div class="container">
                                     <div class="row">
@@ -108,7 +108,7 @@
 
     private string diagramDefinition = "";
     private ExecutionEngine engine = null;
-    private List<CounterItem> Counters = new List<CounterItem>();
+    private ItemCounters Counters = new ItemCounters();
     private ExecutionItem NextInLine = null;
     private string ActivatedFrom = "";
     private List<string> Log = new List<string>();
@@ -154,18 +154,18 @@
         NextInLine = engine.NodesToExecute.FirstOrDefault();
         if (NextInLine == null || NextInLine.ActivationToken == null || NextInLine.ActivationToken.PreviousNode == null)
         {
-            Counters = new List<CounterItem>();
+            Counters = new ItemCounters();
             ActivatedFrom = "";
             return;
         }
         Log.Add(NextInLine.Node.Text);
         ActivatedFrom = NextInLine.ActivationToken.PreviousNode.Text;
 
-        Counters = new List<CounterItem>();
+        Counters = new ItemCounters();
 
         if (NextInLine.Node is IJoin joinNode)
         {
-            Counters = joinNode.Counters;
+            Counters = joinNode.GetCounters();
         }
     }
 
